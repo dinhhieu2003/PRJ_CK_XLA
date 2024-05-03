@@ -142,23 +142,27 @@ class App(customtkinter.CTk):
                                       width=100, height=30)
         self.grade_button.grid(row=0, column=1, padx=0)
 
-        # add graded frame
+        # graded frame
         self.graded_image_frame = OriginImageFrame(master=self, width=500, height=550,
                                                          border_color=constant.COLOR_FRAME_BORDER, border_width=2)
         self.graded_image_frame.grid(row=0, column=2, padx=20, pady=20, sticky="ne")
         self.graded_image_label = None
 
+        # result frame
+        self.result_frame = OriginImageFrame(master=self, width=500)
+        self.result_frame.grid(row=1, column=2, padx=20, pady=20, sticky="nw")
+
         # test_id label
-        self.test_id_label = customtkinter.CTkLabel(self, text="Mã đề thi:___", fg_color="transparent",
+        self.test_id_label = customtkinter.CTkLabel(self.result_frame, text="Mã đề thi:___", fg_color="transparent",
                                                   font=customtkinter.CTkFont(weight='bold', size=20),
                                                   text_color=constant.COLOR_LABEL_SCORE)
-        self.test_id_label.grid(row=1, column=2, padx=20, pady=0, sticky='nw')
+        self.test_id_label.grid(row=0, column=0, padx=0, pady=0, sticky='nw')
 
         # score label
-        self.score_label = customtkinter.CTkLabel(self, text="Điểm:___", fg_color="transparent",
+        self.score_label = customtkinter.CTkLabel(self.result_frame, text="Điểm:___", fg_color="transparent",
                                                   font=customtkinter.CTkFont(weight='bold', size=20),
                                                   text_color=constant.COLOR_LABEL_SCORE)
-        self.score_label.grid(row=2, column=2, padx=20, pady=0, sticky='nw')
+        self.score_label.grid(row=0, column=1, padx=20, pady=0, sticky='nw')
 
         # scrollable correct answers
         self.correct_answers_frame = None
@@ -175,6 +179,10 @@ class App(customtkinter.CTk):
         self.file_scrollable_frame = ScrollableFrameExamFile(master=self.button_frame, item_list=name_files)
         self.file_scrollable_frame._scrollbar.configure(height=20)
         self.file_scrollable_frame.grid(row=2, column=0, padx=0, pady=5, sticky='w')
+        self.test_id_label.configure(text='Mã đề thi:___')
+        self.score_label.configure(text='Điểm:___')
+        if self.correct_answers_frame:
+            self.correct_answers_frame.destroy()
 
     def choose_image_command(self):
         file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.png;*.jpg;*.jpeg;*.gif")])
@@ -189,6 +197,10 @@ class App(customtkinter.CTk):
             self.display_ori_img(image, master=self.origin_image_frame)
             if self.graded_image_label:
                 self.graded_image_label.destroy()
+            self.test_id_label.configure(text='Mã đề thi:___')
+            self.score_label.configure(text='Điểm:___')
+            if self.correct_answers_frame:
+                self.correct_answers_frame.destroy()
     def display_ori_img(self, image, master):
         if(self.ori_image_label):
             self.ori_image_label.destroy()
