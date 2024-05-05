@@ -57,8 +57,7 @@ class Answer:
     def __init__(self, path):
         self.path = path
         self.name_files = []
-        # list to store answer alphabet
-        self.ANSWER_KEY_LETTER = {}
+
     def get_answer_indices(self,excel_path):
         # Load the workbook and select the active worksheet
         workbook = load_workbook(excel_path)
@@ -70,17 +69,13 @@ class Answer:
         # Create a list to store the answer indices
         answer_indices = []
 
-        # store answer format letter
-        answers_letter = []
-
         # Assuming the first column has question numbers and the second has answers
         for row in sheet.iter_rows(min_row=1):  # Skip the header row
             answer_letter = row[1].value
             # Convert the letter to an index using the answer_map
             answer_index = answer_map.get(answer_letter, -1)  # Default to -1 if not found
             answer_indices.append(answer_index)
-            answers_letter.append(answer_letter)
-        return answer_indices, answers_letter
+        return answer_indices
 
     def read_answers_in_directory(self):
         answers_dict = {}
@@ -92,9 +87,8 @@ class Answer:
                 # Extract the exam code from the filename
                 self.name_files.append(filename)
                 ma_de = filename.split(".xlsx")[0]
-                answer_indices, answers_letter = self.get_answer_indices(file_path)
+                answer_indices = self.get_answer_indices(file_path)
                 answers_dict[ma_de] = answer_indices
-                self.ANSWER_KEY_LETTER = dict(zip(ques_index, answers_letter))
         return answers_dict
 class App(customtkinter.CTk):
     def __init__(self):
@@ -122,7 +116,7 @@ class App(customtkinter.CTk):
         self.button_frame = customtkinter.CTkFrame(master=self, width=500, fg_color='transparent')
         self.button_frame.grid(row=1, column=0, padx=20, pady=0, sticky='sw')
 
-        self.choose_folder_button = AppButton(master=self.button_frame, text='Chon folder chua cac ma de',
+        self.choose_folder_button = AppButton(master=self.button_frame, text='Chọn thư mục chứa các mã đề',
                                                            icon=self.folder_icon, command=self.choose_folder_command,
                                                             width=240, height=30)
         self.choose_folder_button.grid(row=0, column=0, padx=0, pady=0, sticky='nw')
@@ -131,7 +125,7 @@ class App(customtkinter.CTk):
         self.file_scrollable_frame.grid(row=2, column=0, padx=0, pady=5, sticky='w')
 
         # choosing image button
-        self.choose_image_button = AppButton(master=self.button_frame, text='Chon anh phieu trac nghiem',
+        self.choose_image_button = AppButton(master=self.button_frame, text='Chọn ảnh phiếu trắc nghiệm',
                                                            icon=self.photo_icon, command=self.choose_image_command,
                                                             width=240, height=30)
         self.choose_image_button.grid(row=0, column=1, padx=20, pady=0, sticky='ne')
@@ -171,7 +165,6 @@ class App(customtkinter.CTk):
         directory_path = filedialog.askdirectory()
         answer = Answer(directory_path)
         self.answers_dict = answer.read_answers_in_directory()
-        self.answers_dict_letter = answer.ANSWER_KEY_LETTER
         name_files = answer.name_files
 
         if self.file_scrollable_frame:
@@ -341,7 +334,9 @@ class App(customtkinter.CTk):
             if self.code == int(ma_de):
                 opts = answer_indices
         ANSWER_KEY = dict(zip(ques_index, opts))
-
+        letter_map = {0 : 'A', 1 : 'B', 2 : 'C', 3 : 'D', 4 : 'E'}
+        letter_opts = [letter_map[num] for num in opts]
+        self.answers_dict_letter = dict(zip(ques_index, letter_opts))
         # =========================================================================================================
         # Get question contours and order
         questionCnts = contours.sort_contours(questions, method="top-to-bottom")[0]
@@ -387,7 +382,7 @@ class App(customtkinter.CTk):
                 correct += 1
             # Vẽ viền của câu trả lời đúng trên bài kiểm tra
             cv2.drawContours(paper, [cnts[k]], -1, color, 3)
-
+        
         # =========================================================================================================
         # số câu tối đa
         max_marks = 60
@@ -398,7 +393,7 @@ class App(customtkinter.CTk):
 
         # grab the test taker
         # Tính toán điểm số
-        score = (correct * positive_marking) / max_marks * 100
+        score = (correct * positive_marking) / max_marks * 10
 
         # Thông tin về số câu trả lời đúng và điểm số được lưu vào một dictionary info
         info = {
@@ -447,7 +442,8 @@ class App(customtkinter.CTk):
 if __name__ == "__main__":
     app = App()
     app.configure(fg_color='white')
-    app._set_appearance_mode('dark')
+    app._set_appearance_mode('white')
     app.title('Chấm điểm trắc nghiệm')
     app.iconbitmap('assets/icon/multiple-choice.ico')
     app.mainloop()
+
