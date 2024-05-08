@@ -29,7 +29,7 @@ class AppButton(customtkinter.CTkButton):
 
 class ScrollableFrameExamFile(customtkinter.CTkScrollableFrame):
     def __init__(self, master, item_list):
-        super().__init__(master, width=70, height=5)
+        super().__init__(master, width=70, height=45, fg_color='#dfe6e9')
         self.grid_columnconfigure(0, weight=1)
         self.item_list=item_list
         self.label_list = []
@@ -42,12 +42,13 @@ class ScrollableFrameExamFile(customtkinter.CTkScrollableFrame):
 
 class ScrollableFrameCorrectAnswer(customtkinter.CTkScrollableFrame):
     def __init__(self, master, item_list):
-        super().__init__(master, width=70, height=40)
+        super().__init__(master, width=70, height=40, fg_color='#dfe6e9')
         self.grid_columnconfigure(0, weight=1)
         self.label_list = []
         self.item_list = item_list
-        for i in range(60):
-            self.add_item(i)
+        if len(item_list) > 0:
+            for i in range(60):
+                self.add_item(i)
     def add_item(self, question_index):
         label = customtkinter.CTkLabel(self, text=f'{question_index+1} - {self.item_list[question_index]}', padx=5, anchor="w")
         label.grid(row=len(self.label_list), column=0, pady=(0, 2), sticky="w")
@@ -143,23 +144,28 @@ class App(customtkinter.CTk):
         self.graded_image_label = None
 
         # result frame
-        self.result_frame = OriginImageFrame(master=self, width=500)
-        self.result_frame.grid(row=1, column=2, padx=20, pady=20, sticky="nw")
+        self.result_frame = OriginImageFrame(fg_color='white',master=self, width=500, height=100)
+        self.result_frame.grid(row=1, column=2, padx=20, pady=0, sticky="ne")
 
+        # id & score frame
+        self.id_score_frame = OriginImageFrame(master=self.result_frame, width=190, height=100, fg_color='white')
+        self.id_score_frame.grid(row=0, column=0, padx=20, pady=0, sticky="ne")
         # test_id label
-        self.test_id_label = customtkinter.CTkLabel(self.result_frame, text="Mã đề thi:___", fg_color="transparent",
+        self.test_id_label = customtkinter.CTkLabel(self.id_score_frame, text="Mã đề thi:____",
                                                   font=customtkinter.CTkFont(weight='bold', size=20),
                                                   text_color=constant.COLOR_LABEL_SCORE)
-        self.test_id_label.grid(row=0, column=0, padx=0, pady=0, sticky='nw')
+        self.test_id_label.grid(row=0, column=0, padx=0, pady=14, sticky='nw')
 
         # score label
-        self.score_label = customtkinter.CTkLabel(self.result_frame, text="Điểm:___", fg_color="transparent",
+        self.score_label = customtkinter.CTkLabel(self.id_score_frame, text="Điểm:____",
                                                   font=customtkinter.CTkFont(weight='bold', size=20),
                                                   text_color=constant.COLOR_LABEL_SCORE)
-        self.score_label.grid(row=0, column=1, padx=20, pady=0, sticky='nw')
+        self.score_label.grid(row=1, column=0, padx=0, pady=0, sticky='nw')
 
         # scrollable correct answers
-        self.correct_answers_frame = None
+        self.correct_answers_frame = ScrollableFrameCorrectAnswer(master=self.result_frame, item_list=[])
+        self.correct_answers_frame._scrollbar.configure(height=70)
+        self.correct_answers_frame.grid(row=0, column=1, padx=0, pady=0, sticky="ne")
 
     def choose_folder_command(self):
         directory_path = filedialog.askdirectory()
@@ -172,8 +178,8 @@ class App(customtkinter.CTk):
         self.file_scrollable_frame = ScrollableFrameExamFile(master=self.button_frame, item_list=name_files)
         self.file_scrollable_frame._scrollbar.configure(height=20)
         self.file_scrollable_frame.grid(row=2, column=0, padx=0, pady=5, sticky='w')
-        self.test_id_label.configure(text='Mã đề thi:___')
-        self.score_label.configure(text='Điểm:___')
+        self.test_id_label.configure(text='Mã đề thi:____')
+        self.score_label.configure(text='Điểm:____')
         if self.correct_answers_frame:
             self.correct_answers_frame.destroy()
 
@@ -442,7 +448,7 @@ class App(customtkinter.CTk):
 if __name__ == "__main__":
     app = App()
     app.configure(fg_color='white')
-    app._set_appearance_mode('white')
+    app._set_appearance_mode('light')
     app.title('Chấm điểm trắc nghiệm')
     app.iconbitmap('assets/icon/multiple-choice.ico')
     app.mainloop()
