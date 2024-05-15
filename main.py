@@ -36,7 +36,7 @@ class ScrollableFrameExamFile(customtkinter.CTkScrollableFrame):
         for i, item in enumerate(self.item_list):
             self.add_item(item)
     def add_item(self, item):
-        label = customtkinter.CTkLabel(self, text=item, padx=5, anchor="w")
+        label = customtkinter.CTkLabel(self, text=item, padx=5, anchor="w", text_color='black')
         label.grid(row=len(self.label_list), column=0, pady=(0, 10), sticky="w")
         self.label_list.append(label)
 
@@ -50,7 +50,7 @@ class ScrollableFrameCorrectAnswer(customtkinter.CTkScrollableFrame):
             for i in range(60):
                 self.add_item(i)
     def add_item(self, question_index):
-        label = customtkinter.CTkLabel(self, text=f'{question_index+1} - {self.item_list[question_index]}', padx=5, anchor="w")
+        label = customtkinter.CTkLabel(self, text=f'{question_index+1} - {self.item_list[question_index]}', padx=5, anchor="w", text_color='black')
         label.grid(row=len(self.label_list), column=0, pady=(0, 2), sticky="w")
         self.label_list.append(label)
 
